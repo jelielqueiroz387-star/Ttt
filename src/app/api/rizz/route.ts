@@ -35,7 +35,9 @@ Contexto adicional do usuário: "${custom || text}"
 \( {text ? `Texto da conversa fornecido:\n \){text}` : ""}
     `;
 
-    const contents: any[] = imagePart ? [imagePart, { text: prompt }] : [{ text: prompt }];
+    const contents: any[] = imagePart
+      ? [imagePart, { text: prompt }]
+      : [{ text: prompt }];
 
     const result = await model.generateContent(contents);
     const responseText = result.response.text();
