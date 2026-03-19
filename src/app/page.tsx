@@ -1,13 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Copy, Upload, Loader2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
 import Image from "next/image";
 
 export default function Home() {
@@ -18,7 +11,6 @@ export default function Home() {
   const [reply, setReply] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -32,7 +24,7 @@ export default function Home() {
 
   const handleSubmit = async () => {
     if (!image && !text.trim()) {
-      toast({ title: "Ops", description: "Manda print ou texto da conversa", variant: "destructive" });
+      alert("Manda print ou texto da conversa!");
       return;
     }
 
@@ -52,7 +44,7 @@ export default function Home() {
 
       setReply(data.reply);
     } catch (err: any) {
-      toast({ title: "Erro", description: err.message, variant: "destructive" });
+      alert("Erro: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -60,61 +52,93 @@ export default function Home() {
 
   const copyToClipboard = (txt: string) => {
     navigator.clipboard.writeText(txt);
-    toast({ title: "Copiado!", description: "Tá na área de transferência" });
+    alert("Copiado!");
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 text-white p-4">
-      <h1 className="text-4xl font-bold text-center mb-2">Rizz Gemini 🔥</h1>
-      <p className="text-center text-slate-400 mb-6">Wingman IA pra mato grossense</p>
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 text-white p-6">
+      <h1 className="text-4xl font-bold text-center mb-4">Rizz Gemini 🔥</h1>
+      <p className="text-center text-slate-400 mb-8">Wingman IA - Manda print ou texto</p>
 
-      <Card className="bg-slate-900/60 border-slate-700 mb-6">
-        <CardHeader><CardTitle>Manda o print ou texto</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Print da conversa</Label>
-            <div className="border-2 border-dashed border-slate-600 rounded-lg p-4 text-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-              {imagePreview ? <Image src={imagePreview} alt="preview" width={300} height={200} className="mx-auto" /> : <Upload className="mx-auto h-10 w-10 text-slate-400" />}
-              <Input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageChange} />
-            </div>
+      <div className="max-w-2xl mx-auto bg-slate-900/60 border border-slate-700 rounded-xl p-6 space-y-6">
+        {/* Upload */}
+        <div>
+          <label className="block mb-2 text-sm">Print da conversa</label>
+          <div 
+            className="border-2 border-dashed border-slate-600 rounded-lg p-8 text-center cursor-pointer hover:border-slate-400"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {imagePreview ? (
+              <Image src={imagePreview} alt="preview" width={400} height={300} className="mx-auto rounded" />
+            ) : (
+              <div>
+                <svg className="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p>Clique ou arraste o print</p>
+              </div>
+            )}
+            <input 
+              type="file" 
+              accept="image/*" 
+              className="hidden" 
+              ref={fileInputRef} 
+              onChange={handleImageChange} 
+            />
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label>Ou cola o texto</Label>
-            <Textarea value={text} onChange={e => setText(e.target.value)} placeholder="Ex: Ela: Oi gato\nEu: E aí princesa?" rows={4} className="bg-slate-800" />
-          </div>
+        {/* Texto */}
+        <div>
+          <label className="block mb-2 text-sm">Ou cole o texto</label>
+          <textarea 
+            value={text}
+            onChange={e => setText(e.target.value)}
+            placeholder="Ex: Ela: Oi tudo bem?\nEu: Tô de boa e tu?"
+            className="w-full h-32 p-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+          />
+        </div>
 
-          <div className="space-y-2">
-            <Label>Instrução extra (opcional)</Label>
-            <Input value={custom} onChange={e => setCustom(e.target.value)} placeholder="Ex: Usa gíria cearense" className="bg-slate-800" />
-          </div>
+        {/* Custom */}
+        <div>
+          <label className="block mb-2 text-sm">Instrução extra (opcional)</label>
+          <input 
+            value={custom}
+            onChange={e => setCustom(e.target.value)}
+            placeholder="Ex: Seja mais direto ou usa gíria cearense"
+            className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+          />
+        </div>
 
-          <Button onClick={handleSubmit} disabled={loading} className="w-full bg-pink-600 hover:bg-pink-700">
-            {loading ? <Loader2 className="animate-spin mr-2" /> : null}
-            Gerar Rizz
-          </Button>
-        </CardContent>
-      </Card>
+        <button 
+          onClick={handleSubmit}
+          disabled={loading}
+          className="w-full py-3 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg font-bold hover:opacity-90 disabled:opacity-50"
+        >
+          {loading ? "Gerando..." : "Gerar Rizz 🔥"}
+        </button>
+      </div>
 
       {reply && (
-        <Card className="bg-slate-900/60 border-slate-700">
-          <CardHeader><CardTitle>Respostas geradas</CardTitle></CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {reply.split('\n\n').filter(Boolean).map((block, i) => (
-                <div key={i} className="bg-slate-800 p-4 rounded relative">
-                  <pre className="whitespace-pre-wrap text-sm">{block.trim()}</pre>
-                  <Button variant="ghost" size="icon" className="absolute top-2 right-2" onClick={() => copyToClipboard(block.trim())}>
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="max-w-2xl mx-auto mt-8 bg-slate-900/60 border border-slate-700 rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-4">Respostas geradas</h2>
+          <div className="space-y-4">
+            {reply.split('\n\n').filter(Boolean).map((block, i) => (
+              <div key={i} className="bg-slate-800 p-4 rounded-lg relative">
+                <pre className="whitespace-pre-wrap text-sm font-sans">{block.trim()}</pre>
+                <button 
+                  onClick={() => copyToClipboard(block.trim())}
+                  className="absolute top-2 right-2 text-slate-400 hover:text-white"
+                >
+                  Copiar
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
-      <p className="text-center text-slate-500 mt-8 text-sm">Feito em Fortaleza • Powered by Gemini</p>
+      <p className="text-center text-slate-500 mt-12 text-sm">Powered by Gemini • Feito em Fortaleza</p>
     </main>
   );
-      }
+  }
